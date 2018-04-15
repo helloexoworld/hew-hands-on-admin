@@ -1,0 +1,21 @@
+# sozu proxy simple demo config file
+
+command_socket = "./command_folder/sock"
+saved_state    = "./state.json"
+log_level      = "info"
+log_target     = "stdout"
+command_buffer_size = 16384
+worker_count = 2
+handle_process_affinity = false
+
+[http]
+address = "0.0.0.0"
+port = 8080
+buffer_size = 16384
+
+[applications]
+
+[applications.warp]
+hostname = "0.0.0.0"
+frontends = [ "HTTP" ] # list of proxy tags
+backends  = [ "192.168.1.2:8080", "192.168.1.3:8080", "192.168.1.5:8080", "192.168.1.6:8080" ] # list of IP/port 
