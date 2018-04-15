@@ -1,22 +1,86 @@
-# sozu proxy simple demo config file
+# sozu proxy test config file
 
-command_socket = "./command_folder/sock"
-saved_state    = "./state.json"
-log_level      = "info"
-log_target     = "stdout"
+# top level options
+
+# path to a file sozu can use to load an initial configuration state for its
+# routing. You can generate this file from sozu's current routing by running
+# the command `sozuctl state save -f state.json`
+saved_state = "./state.json"
+
+# logging verbosity. Possible values are "error", "warn", "info", "debug" and
+# "trace". For performance reasons, the logs at "debug" or "trace" level are
+# not compiled by default. To activate them, pass the "logs-debug" and
+# "logs-trace" compilation options to cargo
+log_level = "info"
+
+# where the logs will be sent. It defaults to sending the logs on standard output,
+# but they could be written to a UDP address:
+# log_target     = "udp://127.0.0.1:9876"
+# to a TCP address:
+# log_target     = "tcp://127.0.0.1:9876"
+# to a unix socket
+# log_target = "unix:///var/sozu/logs
+# to a file
+# log_target = "file:///var/logs/sozu.log"
+# to_stdout
+log_target = "stdout"
+
+# optional different target for access logs (IP addresses, domains, URI, HTTP status, etc)
+# It supports the same options as log_target
+# log_access_target = "file:///var/logs/sozu-access.log"
+
+# path to the unix socket file used to send commands to sozu
+command_socket = "./sock"
+
+# size in bytes of the buffer used by the command socket protocol. If the message
+# sent to sozu is too large, or the data that sozu must return is too large, the
+# buffer will grow up to max_command_buffer_size. If the buffer is still not large
+# enough sozu will close the connection
+# defaults to 1000000
 command_buffer_size = 16384
+# defaults to command_buffer_size * 2
+max_command_buffer_size = 163840
+
+# the number of worker processes that will handle traffic
 worker_count = 2
+
+# indicates if workers should be automatically restarted if they crash / hang
+# should be true for production and false for development
+# defaults to true
+worker_automatic_restart = true
+
+# indicates if worker process will be pinned on a core. If you activate this, be sure
+# that you do not have more workers than CPU cores (and leave at least one core for
+# the kernel and the master process)
 handle_process_affinity = false
+
+# maximum number of connections to a worker. If it reached that number and
+# there are new connections available, the worker will accept and close them
+# immediately to indicate it is too busy to handle traffic
+max_connections = 500
+
+# maximum number of buffers used by the protocol implementations for active
+# connections (ie currently serving a request). For now, you should estimate
+# that max_buffers = number of concurrent requests * 2
+max_buffers = 500
+
+# size of the buffers used by the protocol implementations. Each worker will
+# preallocate max_buffers * 2 * buffer_size bytes, so you should plan for this
+# memory usage. If you plan to use sozu's runtime upgrade feature, you should
+# leave enough memory for one more worker (also for the kernel, etc), so total
+# RAM should be larger than (worker count + 1) * max_buffers * 2 * buffer_size bytes
+buffer_size = 16384
 
 [http]
 address = "0.0.0.0"
-max_connections = 100
-port = 8080
 buffer_size = 16384
+port = 8080
+answer_404 = "./404.html"
+answer_503 = "./503.html"
 
 [applications]
 
 [applications.warp]
-hostname = "0.0.0.0"
+hostname = "192.168.1.4"
 frontends = [ "HTTP" ] # list of proxy tags
-backends  = [ "192.168.1.2:8080", "192.168.1.3:8080", "192.168.1.5:8080", "192.168.1.6:8080" ] # list of IP/port 
+backends  = [ "192.168.1.2:8080", "192.168.1.4:8081", "192.168.1.5:8080", "192.168.1.6:8080" ] # list of IP/port 
