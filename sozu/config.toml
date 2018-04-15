@@ -10,6 +10,7 @@ handle_process_affinity = false
 
 [http]
 address = "0.0.0.0"
+max_connections = 100
 port = 8080
 buffer_size = 16384
 
