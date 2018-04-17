@@ -74,7 +74,7 @@ buffer_size = 16384
 [http]
 address = "0.0.0.0"
 buffer_size = 16384
-port = 8080
+port = 80
 answer_404 = "./404.html"
 answer_503 = "./503.html"
 
@@ -83,4 +83,4 @@ answer_503 = "./503.html"
 [applications.warp]
 hostname = "192.168.1.4"
 frontends = [ "HTTP" ] # list of proxy tags
-backends  = [ "192.168.1.4:9090", "192.168.1.4:9091", "192.168.1.4:9092", "192.168.1.4:9093"   ] # list of IP/port
+backends  = [ "192.168.1.4:4000" ] # list of IP/port
